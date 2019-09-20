@@ -2,13 +2,17 @@ clc;clear;close all;
 warning off all;
 
 %读取图像，拉伸对比度
-imagedata = fitsread('E:\shunbianyuan\ldf_download\20190531M31-18object\20150307145403-011-RA.fits');
+imagedata = fitsread('E:\shunbianyuan\ldf_download\2019060314~1510~30\NGC%205492.fts');
+
 reimagedata = operateimage(imagedata);
 lastdata = uint8(reimagedata);
 filtdata = medfilt2(lastdata,[3,3]);
 [height,width]=size(filtdata);
 %二值化图像
-[erzhiimage,doubleimage] = doerzhi(filtdata);
+[erzhiimage,doubleimage] = doerzhi(lastdata);
+
+imshow(doubleimage)
+
 
 [L,num]=bwlabel(doubleimage,8);
 
@@ -37,9 +41,11 @@ imshow(filtdata);
 figure(2)
 imshow(doubleimage);
 fitswrite(lastdata,'myfile.fits');
+figure(3);imhist(filtdata)
+figure(4);imshow(filtdata);
 
-figure(3);imshow(filtdata);
 for i=1:num
     hold  on
     plot(plot_y(i) ,plot_x(i), '*')
 end
+
