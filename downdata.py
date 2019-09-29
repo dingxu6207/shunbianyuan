@@ -40,7 +40,7 @@ def getFile(url):
     print ("Sucessful to download" + " " + file_name)
 
 
-root_url = 'http://psp.china-vo.org/pspdata/2019/09/20190921/00~01%2010~30/'
+root_url = 'http://psp.china-vo.org/pspdata/2019/09/20190920/M33-06object/'
 
 #raw_url = 'http://psp.china-vo.org/pspdata/2019/06/20190603/13~14%2050~60/'
 raw_url = root_url
@@ -48,8 +48,8 @@ raw_url = root_url
 html = getHtml(raw_url)
 url_lst = getUrl(html)
 
-#os.mkdir('E:/ldf_download')
-os.chdir('E:\shunbianyuan\ldf_download')
+#os.mkdir('E:/ldf_download/20190920')
+os.chdir('E:\shunbianyuan\ldf_download\l20190920')
 
 for url in url_lst[:]:
     url = root_url + url
