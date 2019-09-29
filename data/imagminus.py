@@ -13,12 +13,12 @@ from skimage import measure
 
 hduA1 = fits.open('M33 A1.fts')
 imagedataA1 = hduA1[0].data
+imagedataA1F = imagedataA1[0:600,0:600]
 
 hduA2 = fits.open('M33 A2.fts')
 imagedataA2 = hduA2[0].data
-
-
-
+imagedataA2F = imagedataA2[0:600,0:600]
+###显示图像###
 def whadjustimage(img):
     imagedata = img
     mean = np.mean(imagedata)
@@ -45,17 +45,7 @@ def whadjustimage(img):
     return np.uint8(min1data)
 
 
-
-'''
-plt.figure(1)
-plt.imshow(resultA1, cmap='gray')
-
-plt.figure(2)
-plt.imshow(resultA2, cmap='gray')
-'''
-
-
- 
+###求坐标##
 def qiuzuobiao(img):
     resultA = img
     flattenA1 = resultA.flatten()
@@ -93,19 +83,44 @@ def qiuzuobiao(img):
     
  
     
-resultA1 = whadjustimage(imagedataA1)
+resultA1 = whadjustimage(imagedataA1F)
 A1plotx,A1ploty,A1regionnum = qiuzuobiao(resultA1)  
 
 plt.figure(1)
 plt.imshow(resultA1, cmap='gray')  
-
+fluxA1 = np.zeros(A1regionnum,dtype = np.uint)
+listdataA1 = [0 for i in range(A1regionnum)]
 for i in range(A1regionnum):
     plt.plot(A1ploty[i],A1plotx[i],'*')
-    
+    fluxA1[i] = np.sum(resultA1[A1plotx[i]-6:A1plotx[i]+6,A1ploty[i]-6:A1ploty[i]+6]) 
+    listdataA1[i] = (A1plotx[i],A1ploty[i],fluxA1[i] )
+listdataA1.sort(key=lambda x:x[2])
 plt.show()
 
-resultA2 = whadjustimage(imagedataA2)
 plt.figure(2)
-plt.imshow(resultA1, cmap='gray')  
+resultA2 = whadjustimage(imagedataA2F)
+A2plotx,A2ploty,A2regionnum = qiuzuobiao(resultA2)
+plt.imshow(resultA2, cmap='gray') 
+fluxA2 = np.zeros(A2regionnum,dtype = np.uint)
+listdataA2 = [0 for i in range(A2regionnum)]
+for i in range(A2regionnum):
+    plt.plot(A2ploty[i],A2plotx[i],'*') 
+    fluxA2[i] = np.sum(resultA2[A2plotx[i]-6:A2plotx[i]+6,A2ploty[i]-6:A2ploty[i]+6])
+    listdataA2[i] = (A2plotx[i],A2ploty[i],fluxA2[i] )
+listdataA2.sort(key=lambda x:x[2])    
+plt.show()
+
+plt.figure(3)
+plt.imshow(resultA1, cmap='gray') 
+plt.show()
+
+plt.figure(4)
+plt.imshow(resultA2, cmap='gray') 
+plt.show()
+
+
+
+
+ 
 
 
