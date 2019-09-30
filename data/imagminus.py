@@ -10,14 +10,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal as signal
 from skimage import measure
+import math
 
 hduA1 = fits.open('M33 A1.fts')
 imagedataA1 = hduA1[0].data
-imagedataA1F = imagedataA1[0:600,0:600]
+imagedataA1F = imagedataA1     #[0:600,0:600]
 
 hduA2 = fits.open('M33 A2.fts')
 imagedataA2 = hduA2[0].data
-imagedataA2F = imagedataA2[0:600,0:600]
+imagedataA2F = imagedataA2     #[0:600,0:600]
 ###显示图像###
 def whadjustimage(img):
     imagedata = img
@@ -81,7 +82,48 @@ def qiuzuobiao(img):
         ploty[k] = int(sumy/area)
     return plotx,ploty,regionnum
     
- 
+def suansanjiaoxing(listS1,listS2,listS3):
+    x1 = listS1[0]
+    y1 = listS1[1]
+    x2 = listS2[0]
+    y2 = listS2[1]
+    x3 = listS3[0]
+    y3 = listS3[1]
+    
+    datadis1 = ((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))
+    dS1S2 = math.sqrt(datadis1)
+    
+    datadis2 = ((x1-x3)*(x1-x3)+(y1-y3)*(y1-y3))
+    dS1S3 = math.sqrt(datadis2)
+    
+    datadis3 = ((x2-x3)*(x2-x3)+(y2-y3)*(y2-y3))
+    dS2S3 = math.sqrt(datadis3)
+        
+    if (dS1S2 < dS1S3 and dS1S3 < dS2S3):
+        duan = (dS2S3/dS1S2)
+        sumchen = (x1-x3)*(x2-x3) + (y1-y3)*(y2-y3)
+    
+    if (dS1S2 < dS2S3 and dS2S3 < dS1S3):
+        duan = (dS1S3/dS1S2)
+        sumchen = (x1-x3)*(x2-x3) + (y1-y3)*(y2-y3)
+        
+    if (dS2S3 < dS1S3 and dS1S3 < dS1S2):
+        duan = (dS1S2/dS2S3)
+        sumchen = (x2-x1)*(x3-x1) + (y2-y1)*(y3-y1)    
+        
+    if (dS2S3 < dS1S2 and dS1S2 < dS1S3):
+        duan = (dS1S3/dS2S3)
+        sumchen = (x2-x1)*(x3-x1) + (y2-y1)*(y3-y1)    
+           
+    if (dS1S3 < dS1S2 and dS1S2 < dS2S3):
+        duan = dS2S3/dS1S3
+        sumchen = (x1-x2)*(x3-x2) + (y1-y2)*(y3-y2)
+        
+    if (dS1S3 < dS2S3 and dS2S3 < dS1S2):
+        duan = dS1S2/dS1S3
+        sumchen = (x1-x2)*(x3-x2) + (y1-y2)*(y3-y2)    
+        
+    return x1,x2,x3,y1,y2,y3,duan,sumchen
     
 resultA1 = whadjustimage(imagedataA1F)
 A1plotx,A1ploty,A1regionnum = qiuzuobiao(resultA1)  
@@ -94,9 +136,21 @@ for i in range(A1regionnum):
     plt.plot(A1ploty[i],A1plotx[i],'*')
     fluxA1[i] = np.sum(resultA1[A1plotx[i]-6:A1plotx[i]+6,A1ploty[i]-6:A1ploty[i]+6]) 
     listdataA1[i] = (A1plotx[i],A1ploty[i],fluxA1[i] )
-listdataA1.sort(key=lambda x:x[2])
+listdataA1.sort(key=lambda x:x[2],reverse=True)
 plt.show()
 
+jiezhi = 100
+listsanjiaoA1 =  [0 for i in range(jiezhi)]
+for i in range(jiezhi):
+    if (i <= 7):
+        x1,x2,x3,y1,y2,y3,duan,sumchen = suansanjiaoxing(listdataA1[i],listdataA1[i+1],listdataA1[i+2])
+    if (i == 8):
+        x1,x2,x3,y1,y2,y3,duan,sumchen = suansanjiaoxing(listdataA1[i],listdataA1[i+1],listdataA1[i-8])
+    if (i == 9):
+        x1,x2,x3,y1,y2,y3,duan,sumchen = suansanjiaoxing(listdataA1[i],listdataA1[i-9],listdataA1[i-8])
+    listsanjiaoA1[i] = (x1,x2,x3,y1,y2,y3,duan,sumchen)
+    
+    
 plt.figure(2)
 resultA2 = whadjustimage(imagedataA2F)
 A2plotx,A2ploty,A2regionnum = qiuzuobiao(resultA2)
@@ -107,15 +161,37 @@ for i in range(A2regionnum):
     plt.plot(A2ploty[i],A2plotx[i],'*') 
     fluxA2[i] = np.sum(resultA2[A2plotx[i]-6:A2plotx[i]+6,A2ploty[i]-6:A2ploty[i]+6])
     listdataA2[i] = (A2plotx[i],A2ploty[i],fluxA2[i] )
-listdataA2.sort(key=lambda x:x[2])    
+listdataA2.sort(key=lambda x:x[2],reverse=True)    
 plt.show()
 
+listsanjiaoA2 =  [0 for i in range(jiezhi)]
+for i in range(jiezhi):
+    if (i <= 7):
+        x1,x2,x3,y1,y2,y3,duan,sumchen = suansanjiaoxing(listdataA2[i],listdataA2[i+1],listdataA2[i+2])
+    if (i == 8):
+        x1,x2,x3,y1,y2,y3,duan,sumchen = suansanjiaoxing(listdataA2[i],listdataA2[i+1],listdataA2[i-8])
+    if (i == 9):
+        x1,x2,x3,y1,y2,y3,duan,sumchen = suansanjiaoxing(listdataA2[i],listdataA2[i-9],listdataA2[i-8])
+    listsanjiaoA2[i] = (x1,x2,x3,y1,y2,y3,duan,sumchen)
+    
 plt.figure(3)
-plt.imshow(resultA1, cmap='gray') 
+plt.imshow(resultA1, cmap='gray')
+for i in range(jiezhi):
+    if (abs(listsanjiaoA1[i][6]-listsanjiaoA2[i][6]) < 0.1 and abs(listsanjiaoA1[i][7]-listsanjiaoA2[i][7]) < 5000):
+        for i in range(3):
+            plt.plot(listsanjiaoA1[i][0],listsanjiaoA1[i][3],'*') 
+            plt.plot(listsanjiaoA1[i][1],listsanjiaoA1[i][4],'*') 
+            plt.plot(listsanjiaoA1[i][2],listsanjiaoA1[i][5],'*') 
 plt.show()
 
 plt.figure(4)
 plt.imshow(resultA2, cmap='gray') 
+for i in range(jiezhi):
+    if (abs(listsanjiaoA1[i][6]-listsanjiaoA2[i][6]) < 0.1 and abs(listsanjiaoA1[i][7]-listsanjiaoA2[i][7]) < 5000):
+        for i in range(3):
+            plt.plot(listsanjiaoA2[i][0],listsanjiaoA2[i][3],'*') 
+            plt.plot(listsanjiaoA2[i][1],listsanjiaoA2[i][4],'*') 
+            plt.plot(listsanjiaoA2[i][2],listsanjiaoA2[i][5],'*') 
 plt.show()
 
 
