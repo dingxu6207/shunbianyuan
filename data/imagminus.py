@@ -11,17 +11,21 @@ import numpy as np
 import scipy.signal as signal
 from skimage import measure
 import math
+from numpy.linalg import solve
+import copy
 
 hduA1 = fits.open('M33 A1.fts')
 imagedataA1 = hduA1[0].data
-imagedataA1F = imagedataA1     #[0:600,0:600]
+imagedataA1F = copy.deepcopy(imagedataA1)
+hang,lie = imagedataA1F.shape
 
 hduA2 = fits.open('M33 A2.fts')
 imagedataA2 = hduA2[0].data
-imagedataA2F = imagedataA2     #[0:600,0:600]
+imagedataA2F = copy.deepcopy(imagedataA2)
 ###显示图像###
 def whadjustimage(img):
     imagedata = img
+    hang,lie = imagedata.shape
     mean = np.mean(imagedata)
     sigma = np.std(imagedata)
     mindata = np.min(imagedata)
@@ -38,12 +42,16 @@ def whadjustimage(img):
         Imax = maxdata
     else:
         Imax = Imax
-
-    matdata = (imagedata-Imin)/(Imax-Imin)
-    min0data = np.where(matdata < 0,0,matdata)
-    min1data = np.where(min0data < 1,min0data*255,255)
-
-    return np.uint8(min1data)
+        
+    for i in range(hang):
+        for j in range(lie):
+            if (imagedata[i][j] < Imin):
+                imagedata[i][j] = 0
+            elif (imagedata[i][j] > Imax):
+                imagedata[i][j] = 255
+            else:
+                imagedata[i][j] = 255*(imagedata[i][j]-Imin)/(Imax-Imin)
+    return np.uint8(imagedata)
 
 
 ###求坐标##
@@ -200,9 +208,36 @@ for i in range(jiezhi):
             plt.plot(listsanjiaoA2[j][5],listsanjiaoA2[j][2],'*') 
 plt.show()
 
+###求平移和角度###
+data0 = listtempA1[0][0]
+data1 = listtempA1[0][3]
+data2 = listtempA1[0][1]
+data3 = listtempA1[0][4]
 
+ydata0 = listtempA2[0][0]
+ydata1 = listtempA2[0][3]
+ydata2 = listtempA2[0][2]
+ydata3 = listtempA2[0][5]
 
+a = np.mat([[data0,data1,1,0],[data1,-data0,0,1],[data2,data3,1,0],[data3,-data2,0,1]])#系数矩阵
+b = np.mat([ydata0,ydata1,ydata2,ydata3]).T    #常数项列矩阵
+x = solve(a,b)        #方程组的解
+delx = int(x[2])
+dely = int(x[3])
+theta = math.acos(int(x[0]))
+print('delx = ', delx)
+print('dely = ', dely)
+print('theta = ',theta)
 
- 
+###图像平移
+newimage = np.zeros((hang,lie),dtype = np.uint16)
+if delx < 0 and dely < 0:
+    newimage[0:hang+delx,0:lie+dely] = imagedataA1[-delx:hang,-dely:lie]
+    
+if delx > 0 and dely > 0:
+    newimage[delx:hang,dely:lie] = imagedataA1[0:hang-delx,0:lie-dely]   
 
-
+jianimage = np.float32(newimage) - np.float32(imagedataA2)
+resultimage = whadjustimage(jianimage)
+plt.figure(5)    
+plt.imshow(resultimage, cmap='gray') 
