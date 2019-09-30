@@ -83,12 +83,12 @@ def qiuzuobiao(img):
     return plotx,ploty,regionnum
     
 def suansanjiaoxing(listS1,listS2,listS3):
-    x1 = listS1[0]
-    y1 = listS1[1]
-    x2 = listS2[0]
-    y2 = listS2[1]
-    x3 = listS3[0]
-    y3 = listS3[1]
+    x1 = float(listS1[0])
+    y1 = float(listS1[1])
+    x2 = float(listS2[0])
+    y2 = float(listS2[1])
+    x3 = float(listS3[0])
+    y3 = float(listS3[1])
     
     datadis1 = ((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))
     dS1S2 = math.sqrt(datadis1)
@@ -179,9 +179,9 @@ plt.imshow(resultA1, cmap='gray')
 for i in range(jiezhi):
     if (abs(listsanjiaoA1[i][6]-listsanjiaoA2[i][6]) < 0.1 and abs(listsanjiaoA1[i][7]-listsanjiaoA2[i][7]) < 5000):
         for i in range(3):
-            plt.plot(listsanjiaoA1[i][0],listsanjiaoA1[i][3],'*') 
-            plt.plot(listsanjiaoA1[i][1],listsanjiaoA1[i][4],'*') 
-            plt.plot(listsanjiaoA1[i][2],listsanjiaoA1[i][5],'*') 
+            plt.plot(listsanjiaoA1[i][3],listsanjiaoA1[i][0],'*') 
+            plt.plot(listsanjiaoA1[i][4],listsanjiaoA1[i][1],'*') 
+            plt.plot(listsanjiaoA1[i][5],listsanjiaoA1[i][2],'*') 
 plt.show()
 
 plt.figure(4)
@@ -189,9 +189,9 @@ plt.imshow(resultA2, cmap='gray')
 for i in range(jiezhi):
     if (abs(listsanjiaoA1[i][6]-listsanjiaoA2[i][6]) < 0.1 and abs(listsanjiaoA1[i][7]-listsanjiaoA2[i][7]) < 5000):
         for i in range(3):
-            plt.plot(listsanjiaoA2[i][0],listsanjiaoA2[i][3],'*') 
-            plt.plot(listsanjiaoA2[i][1],listsanjiaoA2[i][4],'*') 
-            plt.plot(listsanjiaoA2[i][2],listsanjiaoA2[i][5],'*') 
+            plt.plot(listsanjiaoA2[i][3],listsanjiaoA2[i][0],'*') 
+            plt.plot(listsanjiaoA2[i][4],listsanjiaoA2[i][1],'*') 
+            plt.plot(listsanjiaoA2[i][5],listsanjiaoA2[i][2],'*') 
 plt.show()
 
 
