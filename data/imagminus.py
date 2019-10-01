@@ -13,7 +13,10 @@ from skimage import measure
 import math
 from numpy.linalg import solve
 import copy
+import time
 
+
+start = time.time()
 hduA1 = fits.open('M33 A1.fts')
 imagedataA1 = hduA1[0].data
 imagedataA1F = copy.deepcopy(imagedataA1)
@@ -190,13 +193,14 @@ counttemp = 0
 for i in range(jiezhi):
     for j in range(jiezhi):
         if (abs(listsanjiaoA1[i][6]-listsanjiaoA2[j][6]) < 0.1 and abs(listsanjiaoA1[i][7]-listsanjiaoA2[j][7]) < 5000):
-            plt.plot(listsanjiaoA1[i][3],listsanjiaoA1[i][0],'*') 
-            plt.plot(listsanjiaoA1[i][4],listsanjiaoA1[i][1],'*') 
+            plt.plot(listsanjiaoA1[i][3],listsanjiaoA1[i][0],'*')             
+            plt.plot(listsanjiaoA1[i][4],listsanjiaoA1[i][1],'*')
             plt.plot(listsanjiaoA1[i][5],listsanjiaoA1[i][2],'*') 
             listtempA1[counttemp] = listsanjiaoA1[i]
             listtempA2[counttemp] = listsanjiaoA2[j]
             counttemp = counttemp+1
 plt.show()
+
 
 plt.figure(4)
 plt.imshow(resultA2, cmap='gray') 
@@ -205,7 +209,7 @@ for i in range(jiezhi):
         if (abs(listsanjiaoA1[i][6]-listsanjiaoA2[j][6]) < 0.1 and abs(listsanjiaoA1[i][7]-listsanjiaoA2[j][7]) < 5000):
             plt.plot(listsanjiaoA2[j][3],listsanjiaoA2[j][0],'*') 
             plt.plot(listsanjiaoA2[j][4],listsanjiaoA2[j][1],'*') 
-            plt.plot(listsanjiaoA2[j][5],listsanjiaoA2[j][2],'*') 
+            plt.plot(listsanjiaoA2[j][5],listsanjiaoA2[j][2],'*')
 plt.show()
 
 ###求平移和角度###
@@ -241,3 +245,6 @@ jianimage = np.float32(newimage) - np.float32(imagedataA2)
 resultimage = whadjustimage(jianimage)
 plt.figure(5)    
 plt.imshow(resultimage, cmap='gray') 
+
+end = time.time()
+print("循环运行时间:%.2f秒"%(end-start))
