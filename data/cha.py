@@ -7,13 +7,20 @@ Created on Mon Sep 30 23:14:12 2019
 from astropy.io import fits
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
+import copy
 
-hduA1 = fits.open('M33 A1.fts')
+fitsname1 = 'NGC%20169.fts'
+fitsname2 = 'NGC%20169a.fts'
+ 
+hduA1 = fits.open(fitsname1)
 imagedataA1 = hduA1[0].data
+imagedataA1F = copy.deepcopy(imagedataA1)
 hang,lie = imagedataA1.shape
 
-hduA2 = fits.open('M33 A2.fts')
+hduA2 = fits.open(fitsname2)
 imagedataA2 = hduA2[0].data
+imagedataA2F = copy.deepcopy(imagedataA2)
 
 ###显示图像###
 def whadjustimage(img):
@@ -45,19 +52,33 @@ def whadjustimage(img):
                 imagedata[i][j] = 255*(imagedata[i][j]-Imin)/(Imax-Imin)
     return np.uint8(imagedata)
 
+delx =  14
+dely =  26
+theta =  0.1
+
+
+img = Image.fromarray(imagedataA1.astype('uint16'))
+rotimage = img.rotate(theta)
+rotimagedataA1 = np.array(rotimage)
+
 newimage = np.zeros((hang,lie),dtype = np.uint16)
-newimage[0:hang-9,0:lie-4] =  imagedataA1[9:hang,4:lie]
+if delx < 0 and dely < 0:
+    newimage[0:hang+delx,0:lie+dely] = rotimagedataA1[-delx:hang,-dely:lie]
+    
+if delx > 0 and dely > 0:
+    newimage[delx:hang,dely:lie] = rotimagedataA1[0:hang-delx,0:lie-dely]  
+    
+    
 minusimage = np.float32(newimage)-np.float32(imagedataA2)
 
-
 plt.figure(1)    
-A1image = whadjustimage(imagedataA1)
-plt.imshow(A1image, cmap='gray')
+A3image = whadjustimage(minusimage)
+plt.imshow(A3image, cmap='gray')
 
-plt.figure(2)    
+
+plt.figure(2) 
+imagedataA2 = np.float32(imagedataA1)-np.float32(imagedataA2)   
 A2image = whadjustimage(imagedataA2)
 plt.imshow(A2image, cmap='gray')
 
-plt.figure(3)    
-A3image = whadjustimage(minusimage)
-plt.imshow(A3image, cmap='gray')
+

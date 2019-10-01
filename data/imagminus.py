@@ -14,15 +14,19 @@ import math
 from numpy.linalg import solve
 import copy
 import time
+from PIL import Image
 
+
+fitsname1 = 'NGC%20169.fts'
+fitsname2 = 'NGC%20169a.fts'
 
 start = time.time()
-hduA1 = fits.open('M33 A1.fts')
+hduA1 = fits.open(fitsname1)
 imagedataA1 = hduA1[0].data
 imagedataA1F = copy.deepcopy(imagedataA1)
 hang,lie = imagedataA1F.shape
 
-hduA2 = fits.open('M33 A2.fts')
+hduA2 = fits.open(fitsname2)
 imagedataA2 = hduA2[0].data
 imagedataA2F = copy.deepcopy(imagedataA2)
 ###显示图像###
@@ -213,38 +217,51 @@ for i in range(jiezhi):
 plt.show()
 
 ###求平移和角度###
-data0 = listtempA1[0][0]
-data1 = listtempA1[0][3]
-data2 = listtempA1[0][1]
-data3 = listtempA1[0][4]
+data0 = listtempA1[0][0]  #x0
+data1 = listtempA1[0][3]  #y0
+data2 = listtempA1[0][1]  #x1
+data3 = listtempA1[0][4]  #y1
 
-ydata0 = listtempA2[0][0]
-ydata1 = listtempA2[0][3]
-ydata2 = listtempA2[0][2]
-ydata3 = listtempA2[0][5]
+ydata0 = listtempA2[0][0] #x0
+ydata1 = listtempA2[0][3] #y0
+ydata2 = listtempA2[0][2] #x2
+ydata3 = listtempA2[0][5] #y2
 
 a = np.mat([[data0,data1,1,0],[data1,-data0,0,1],[data2,data3,1,0],[data3,-data2,0,1]])#系数矩阵
 b = np.mat([ydata0,ydata1,ydata2,ydata3]).T    #常数项列矩阵
 x = solve(a,b)        #方程组的解
 delx = int(x[2])
 dely = int(x[3])
-theta = math.acos(int(x[0]))
+if x[1]<1 and x[1]>-1:
+    theta = math.asin((x[1]))*57.3
+else:
+    theta = 0
 print('delx = ', delx)
 print('dely = ', dely)
 print('theta = ',theta)
 
-###图像平移
+img = Image.fromarray(imagedataA1.astype('uint16'))
+rotimage = img.rotate(theta)
+rotimagedataA1 = np.array(rotimage)
+
+#rotimagedataA1 = transform.rotate(imagedataA1, theta,resize = False)
+###图像平移###
 newimage = np.zeros((hang,lie),dtype = np.uint16)
 if delx < 0 and dely < 0:
-    newimage[0:hang+delx,0:lie+dely] = imagedataA1[-delx:hang,-dely:lie]
+    newimage[0:hang+delx,0:lie+dely] = rotimagedataA1[-delx:hang,-dely:lie]
     
 if delx > 0 and dely > 0:
-    newimage[delx:hang,dely:lie] = imagedataA1[0:hang-delx,0:lie-dely]   
+    newimage[delx:hang,dely:lie] = rotimagedataA1[0:hang-delx,0:lie-dely]   
 
 jianimage = np.float32(newimage) - np.float32(imagedataA2)
 resultimage = whadjustimage(jianimage)
 plt.figure(5)    
 plt.imshow(resultimage, cmap='gray') 
 
+yuancha = np.float32(imagedataA1) - np.float32(imagedataA2)
+resultyuancha = whadjustimage(yuancha)
+plt.figure(6)    
+plt.imshow(resultyuancha, cmap='gray')
+
 end = time.time()
-print("循环运行时间:%.2f秒"%(end-start))
+print("运行时间:%.2f秒"%(end-start))
