@@ -230,8 +230,8 @@ ydata3 = listtempA2[0][5] #y2
 a = np.mat([[data0,data1,1,0],[data1,-data0,0,1],[data2,data3,1,0],[data3,-data2,0,1]])#系数矩阵
 b = np.mat([ydata0,ydata1,ydata2,ydata3]).T    #常数项列矩阵
 x = solve(a,b)        #方程组的解
-delx = int(x[2])
-dely = int(x[3])
+delx = int(x[2]+0.5)
+dely = int(x[3]+0.5)
 if x[1]<1 and x[1]>-1:
     theta = math.asin((x[1]))*57.3
 else:
